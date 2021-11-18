@@ -94,7 +94,7 @@ public class Startup {
 
             List<User> list = new LinkedList<>(new ArrayList<>(List.of(user1, user2, user3, user4, user5, user6, user7, user8)));
 
-            for (int i = 0; i < 238; i++) {
+            for (int i = 0; i < 1; i++) {
                 String name = randomName();
                 String lastname = randomLastname();
                 int age = randomAge();

@@ -1,5 +1,7 @@
 package com.example.crud.config;
 
+import com.example.crud.security.JwtFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.crud.service.UserService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.annotation.Resource;
 import java.util.function.BiPredicate;
@@ -72,6 +75,12 @@ public class SecurityConfig {
     @Order(1)
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
+        private final JwtFilter jwtFilter;
+        @Autowired
+        public ApiWebSecurityConfigurationAdapter(JwtFilter jwtFilter) {
+            this.jwtFilter = jwtFilter;
+        }
+
         @Resource(name = "UserService")
         private UserService userService;
 
@@ -87,8 +96,9 @@ public class SecurityConfig {
 
             http
                     .antMatcher("/admin")
-                    .httpBasic()
-                    .and()
+                    .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                    //.httpBasic()
+                   // .and()
                     .sessionManagement().disable();
         }
     }

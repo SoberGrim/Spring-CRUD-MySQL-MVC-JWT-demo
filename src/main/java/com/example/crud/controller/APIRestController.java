@@ -118,22 +118,23 @@ public class APIRestController {
     }
 
 
+    private static Cookie setCookie(String name, String value, int age) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setDomain("localhost");
+        cookie.setPath("/");
+        cookie.setMaxAge(age);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
+
     @GetMapping("/jwt")
     public String giveJWTToken(HttpServletResponse response)
     {
         String accessToken = generateAccessToken("1","ADMIN","ADMIN");
         String refreshToken = generateRefreshToken("1","ADMIN","ADMIN");
-
-        Cookie cookie = new Cookie("Token", accessToken);
-        cookie.setDomain("localhost");
-        cookie.setPath("/");
-        cookie.setMaxAge(86400);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        response.addCookie(cookie);
-      //  response.setHeader("Set-Cookie", cookie+ "; SameSite=strict");
-//        response.setHeader("Authorization", accessToken);
-//        response.setHeader("Access-Control-Expose-Headers", "authorization");
+        response.addCookie(setCookie("JWT",accessToken,86400));
+        response.addCookie(setCookie("JWR", refreshToken,86400*10));
 
         return "<a href=\"https://jwt.io/?value="+ accessToken + "\" target=\"_blank\">" + accessToken + "</a><br><br>\n" +
                 "<a href=\"https://jwt.io/?value="+ refreshToken + "\" target=\"_blank\">"+ refreshToken +"</a>";
@@ -153,7 +154,7 @@ public class APIRestController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(HttpHeaders.COOKIE, cookies);
-
+        
         HttpEntity<String> entity = new HttpEntity<>(request.postData, headers);
         ResponseEntity<String> respEntity = new RestTemplate().exchange(request.url, httpMethod, entity, String.class);
 

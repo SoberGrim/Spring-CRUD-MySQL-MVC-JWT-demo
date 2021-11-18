@@ -3,9 +3,14 @@ package com.example.crud.controller;
 import com.example.crud.model.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -17,8 +22,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
 
-
+@Component
 public class Utils {
+//    final String jwtSecret;
+//    @Autowired
+//    public Utils(Environment env) {
+//        this.jwtSecret = env.getProperty("jwt.secret");
+//    }
 
     static void checkLoginEmailBusy(UserDTO userdto, BindingResult bindingResult, UserService service) {
         User editedUser = service.getByUsername(userdto.getUsername());
@@ -76,8 +86,7 @@ public class Utils {
 
     public static String generateAccessToken(String id, String username, String password) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + 60 * 60 * 24 * 7);
-
+        Date expiry = new Date(now.getTime() + 1000 * 60 * 2);
         return Jwts.builder()
                 .setSubject(id)
                 .claim("username", username)
@@ -92,7 +101,7 @@ public class Utils {
 
     public static String generateRefreshToken(String id, String username, String password) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + 60 * 60 * 24 * 7 * 30);
+        Date expiry = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 24);
 
         return Jwts.builder()
                 .setSubject(id)
