@@ -1,3 +1,4 @@
+
 function parseUser(formName) {
     let user = {
         id: '',
@@ -7,6 +8,8 @@ function parseUser(formName) {
         email: $("#email" + formName).val(),
         username: $("#username" + formName).val(),
         password: $("#password" + formName).val(),
+        createDate: '',
+        lastChange: '',
         roleStr: ''
     };
     if ($('#id' + formName).length) {
@@ -28,6 +31,8 @@ function setUser(user, formName) {
     $("#email"+formName).val(user.email);
     $("#username"+formName).val(user.username);
     $("#password"+formName).val(user.password);
+    $("#createDate"+formName).val(user.createDate);
+    $("#lastChange"+formName).val(user.lastChange);
     if (user.userRoleStr.includes("ADMIN")) document.getElementById("checkbox"+formName+"-1").checked=true;
     if (user.userRoleStr.includes("USER")) document.getElementById("checkbox"+formName+"-2").checked=true;
     if (user.userRoleStr.includes("GUEST")) document.getElementById("checkbox"+formName+"-3").checked=true;

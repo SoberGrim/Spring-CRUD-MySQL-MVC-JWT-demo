@@ -4,10 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 @Data
 @Component
@@ -47,6 +49,10 @@ public class UserDTO {
     @Size(min = 4, message = "Password minimum length is 4 symbols")
     @Size(max = 60, message = "Password maximum length is 60 symbols")
     private String password;
+
+    private String createDate;
+
+    private String lastChange;
 
     private String roleStr;
 

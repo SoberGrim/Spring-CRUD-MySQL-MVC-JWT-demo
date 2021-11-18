@@ -1,6 +1,8 @@
 package com.example.crud.controller;
 
 import com.example.crud.model.User;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,10 +13,9 @@ import com.example.crud.model.UserDTO;
 import com.example.crud.model.UserRole;
 import com.example.crud.service.UserService;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Objects;
-
+import java.util.*;
 
 
 public class Utils {
@@ -72,4 +73,34 @@ public class Utils {
         }
         return principal;
     }
+
+    public static String generateAccessToken(String id, String username, String password) {
+        Date now = new Date(System.currentTimeMillis());
+        Date expiry = new Date(now.getTime() + 60 * 60 * 24 * 7);
+
+        return Jwts.builder()
+                .setSubject(id)
+                .claim("username", username)
+                .claim("roles", "ADMIN USER")
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .setIssuer("token-issuer")
+                .setAudience("partner_id")
+                .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8)) // new byte[]{'a','s'}
+                .compact();
+    }
+
+    public static String generateRefreshToken(String id, String username, String password) {
+        Date now = new Date(System.currentTimeMillis());
+        Date expiry = new Date(now.getTime() + 60 * 60 * 24 * 7 * 30);
+
+        return Jwts.builder()
+                .setSubject(id)
+                .claim("username", username)
+                .setExpiration(expiry)
+                .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8))
+                .compact();
+    }
+
+
 }

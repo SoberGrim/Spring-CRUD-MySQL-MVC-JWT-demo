@@ -14,9 +14,13 @@ import com.example.crud.model.HTTPRequest;
 import com.example.crud.model.UserDTO;
 import com.example.crud.service.RoleService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Objects;
+import java.net.http.HttpResponse;
+import java.util.*;
+
+import static com.example.crud.controller.Utils.*;
 
 
 @RestController
@@ -30,6 +34,7 @@ public class APIRestController {
         this.service = service;
         this.roleService = roleService;
     }
+
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/users")
@@ -46,6 +51,7 @@ public class APIRestController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/new")
     UserDTO createNewUser(@RequestBody @Valid UserDTO tempUser, BindingResult bindingResult) {
+        System.out.println(bindingResult);
         Utils.checkLoginEmailBusy(tempUser, bindingResult, service);
         UserDTO userErrorDTO = Utils.parseBindingErrors(bindingResult);
         if (bindingResult.hasErrors()) {
@@ -110,6 +116,29 @@ public class APIRestController {
         Long id = idStr.matches("\\d+")?Long.parseLong(idStr):0;
         service.delete(id);
     }
+
+
+    @GetMapping("/jwt")
+    public String giveJWTToken(HttpServletResponse response)
+    {
+        String accessToken = generateAccessToken("1","ADMIN","ADMIN");
+        String refreshToken = generateRefreshToken("1","ADMIN","ADMIN");
+
+        Cookie cookie = new Cookie("Token", accessToken);
+        cookie.setDomain("localhost");
+        cookie.setPath("/");
+        cookie.setMaxAge(86400);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+      //  response.setHeader("Set-Cookie", cookie+ "; SameSite=strict");
+//        response.setHeader("Authorization", accessToken);
+//        response.setHeader("Access-Control-Expose-Headers", "authorization");
+
+        return "<a href=\"https://jwt.io/?value="+ accessToken + "\" target=\"_blank\">" + accessToken + "</a><br><br>\n" +
+                "<a href=\"https://jwt.io/?value="+ refreshToken + "\" target=\"_blank\">"+ refreshToken +"</a>";
+    }
+
 
 
     String cookies="";

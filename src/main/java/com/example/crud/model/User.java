@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
@@ -92,6 +93,15 @@ public class User implements UserDetails {
     @Size(min = 5, max = 120, message = "Email should be between 5 and 120 characters")
     private String email;
 
+    @NotNull
+    @Column(name = "createDate", nullable = false)
+    private Date createDate;
+
+    @NotNull
+    @Column(name = "lastChange", nullable = false)
+    private Date lastChange;
+
+
     @JsonManagedReference
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
     @Fetch(FetchMode.JOIN)
@@ -112,9 +122,43 @@ public class User implements UserDetails {
         setUserRoles(userRoles);
     }
 
+    public User(String username, String password, String firstname, String lastname, String age, String email, Date createDate, Date lastChange, Collection<UserRole> userRoles) {
+        setUsername(username);
+        setPassword(password);
+        setFirstname(firstname);
+        setLastname(lastname);
+        setAge(age);
+        setEmail(email);
+        setCreateDate(createDate);
+        setLastChange(lastChange);
+        setUserRoles(userRoles);
+    }
+
     public User(String username, String password, String name, String lastname, String age, String email, UserRole... userRoles) {
         this(username, password, name, lastname, age, email, Arrays.asList(userRoles));
     }
+
+    public User(String username, String password, String name, String lastname, String age, String email, Date createDate, Date lastChange, UserRole... userRoles) {
+        this(username, password, name, lastname, age, email, createDate, lastChange, Arrays.asList(userRoles));
+    }
+
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getLastChange() {
+        return lastChange;
+    }
+
+    public void setLastChange(Date lastChange) {
+        this.lastChange = lastChange;
+    }
+
 
     public Long getId() {
         return id;
@@ -122,6 +166,7 @@ public class User implements UserDetails {
 
     public void setId(Long id) {
         this.id = id;
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public String getUsername() {
@@ -130,6 +175,7 @@ public class User implements UserDetails {
 
     public void setUsername(String username) {
         this.username = checkAndCorrectEncoding(username);
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public String getPassword() {
@@ -140,11 +186,13 @@ public class User implements UserDetails {
         if (password.startsWith("$2a$") && password.length() == 60) {
             System.out.println("encrypted password set: " + password);
             this.password = password;
+            setLastChange(new Date(System.currentTimeMillis()));
         } else {
             int len = password.length();
             if ((len >= 4) && (len <= 60)) {
                 System.out.println("plain password set: " + password + Arrays.toString(password.getBytes()));
                 this.password = passwordEncoder.encode(password);
+                setLastChange(new Date(System.currentTimeMillis()));
             } else {
                 System.out.println("password not updated (len < 4)");
                 this.password = password;
@@ -158,6 +206,7 @@ public class User implements UserDetails {
 
     public void setFirstname(String firstname) {
         this.firstname = checkAndCorrectEncoding(firstname);
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public String getLastname() {
@@ -166,6 +215,7 @@ public class User implements UserDetails {
 
     public void setLastname(String lastname) {
         this.lastname = checkAndCorrectEncoding(lastname);
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public String getAge() {
@@ -174,6 +224,7 @@ public class User implements UserDetails {
 
     public void setAge(String age) {
         this.age = age;
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public String getEmail() {
@@ -182,6 +233,7 @@ public class User implements UserDetails {
 
     public void setEmail(String email) {
         this.email = checkAndCorrectEncoding(email);
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public Collection<UserRole> getUserRoles() {
@@ -190,6 +242,7 @@ public class User implements UserDetails {
 
     public void setUserRoles(Collection<UserRole> userRoles) {
         this.userRoles = userRoles;
+        setLastChange(new Date(System.currentTimeMillis()));
     }
 
     public String getUserRoleStr() {
@@ -264,6 +317,8 @@ public class User implements UserDetails {
         setUsername(user.username);
         setPassword(user.password);
         setUserRoles(user.userRoles);
+        setCreateDate(user.createDate);
+        setLastChange(user.lastChange);
     }
 
     public UserDTO merge(UserDTO user, Collection<UserRole> roles) {
@@ -290,6 +345,12 @@ public class User implements UserDetails {
 
         if (roles!=null) setUserRoles(roles);
 
+        if (this.createDate == null)
+            setCreateDate(new Date(System.currentTimeMillis()));
+        //else ignore changing creationDate
+
+        setLastChange(new Date(System.currentTimeMillis()));
+
         return null;
     }
 
@@ -304,6 +365,7 @@ public class User implements UserDetails {
 
     @Override
     public String toString() {
+
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
@@ -312,6 +374,8 @@ public class User implements UserDetails {
                 ", lastname='" + lastname + '\'' +
                 ", age='" + age + '\'' +
                 ", email='" + email + '\'' +
+                ", createDate=" + createDate +
+                ", lastChange=" + lastChange +
                 ", userRoles=" + userRoles +
                 '}';
     }

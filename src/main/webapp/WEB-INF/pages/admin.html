@@ -221,6 +221,14 @@
                     <input id="passwordEdit" class="border rounded" style="width: 19rem" type="text">
                     <div id="passwordEditError" class="small text-danger"></div>
 
+                    <label for="createDateEdit" class="font-weight-bolder mt-3 mb-1">Create Date</label><br>
+                    <input id="createDateEdit" class="border rounded" style="width: 19rem" type="text">
+                    <div id="createDateEditError" class="small text-danger"></div>
+
+                    <label for="lastChangeEdit" class="font-weight-bolder mt-3 mb-1">Last Change</label><br>
+                    <input id="lastChangeEdit" class="border rounded" style="width: 19rem" type="text">
+                    <div id="lastChangeEditError" class="small text-danger"></div>
+
                     <label class="font-weight-bolder mt-3 mb-1">Roles</label>
                     <div th:each="r : ${roles}">
                         <label class="mb-1" style="cursor: pointer;">
@@ -295,6 +303,8 @@
             resetField('emailEdit');
             resetField('usernameEdit');
             resetField('passwordEdit');
+            resetField('createDateEdit');
+            resetField('lastChangeEdit');
 
 
             if ((origin!=='filterButton')&&(origin!=='searchButton')) {
@@ -310,6 +320,8 @@
                 disableField('emailEdit');
                 disableField('usernameEdit');
                 disableField('passwordEdit');
+                disableField('createDateEdit');
+                disableField('lastChangeEdit');
             }
             if (origin==='InfoButton') {
                 muteField('idEdit');
@@ -319,9 +331,13 @@
                 muteField('emailEdit');
                 muteField('usernameEdit');
                 muteField('passwordEdit');
+                muteField('createDateEdit');
+                muteField('lastChangeEdit');
             }
             if (origin==='EditButton') {
                 disableField('idEdit');
+                disableField('createDateEdit');
+                disableField('lastChangeEdit');
             }
             if ((origin==='filterButton')||(origin==='searchButton')) {
             }

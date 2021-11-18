@@ -67,10 +67,11 @@ public class Startup {
         return ThreadLocalRandom.current().nextInt(18, 65);
     }
 
+
+
     @Bean
     public void init() {
         System.out.println("Startup initializing");
-
 
 
         try {
@@ -82,14 +83,14 @@ public class Startup {
             roleService.add(role2);
             roleService.add(role3);
 
-            User user1 = new User("ADMIN", "ADMIN", "Са ша", "Moiseev", "36", "admin@mail.ru", role1, role2);
-            User user2 = new User("USER", "USER", "Патрик", "Douglas", "77", "pat33@yandex.ru", role2, role3);
-            User user3 = new User("GUEST", "GUEST", "Casper", "Johnson", "22", "casper_chost@yahoo.com", role3);
-            User user4 = new User("АДМИН", "АДМИН", "Сумерадмин", "Lerok", "32", "moiseeva_val89@bk.ru", role1);
-            User user5 = new User("ЮЗЕР", "ЮЗЕР", "Vla-зер", "Цепеш", "41", "vlad199332a@yandex.ru", role2);
-            User user6 = new User("ГОСТЬ", "ГОСТЬ", "Vlad-гость", "Соколов", "64", "влад911@яндекс.рф", role3);
-            User user7 = new User("mikey777", "mickey&mina", "Mickey", "Mouse", "77", "warnerbrothers@gmail.com", role3);
-            User user8 = new User("civilV", "imDaBest99", "Sid", "Meyers", "16", "sid@yahoo.com");
+            User user1 = new User("ADMIN", "ADMIN", "Са ша", "Moiseev", "36", "admin@mail.ru",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role1, role2);
+            User user2 = new User("USER", "USER", "Патрик", "Douglas", "77", "pat33@yandex.ru",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role2, role3);
+            User user3 = new User("GUEST", "GUEST", "Casper", "Johnson", "22", "casper_chost@yahoo.com",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role3);
+            User user4 = new User("АДМИН", "АДМИН", "Сумерадмин", "Lerok", "32", "moiseeva_val89@bk.ru",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role1);
+            User user5 = new User("ЮЗЕР", "ЮЗЕР", "Vla-зер", "Цепеш", "41", "vlad199332a@yandex.ru",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role2);
+            User user6 = new User("ГОСТЬ", "ГОСТЬ", "Vlad-гость", "Соколов", "64", "влад911@яндекс.рф",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role3);
+            User user7 = new User("mikey777", "mickey&mina", "Mickey", "Mouse", "77", "warnerbrothers@gmail.com",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role3);
+            User user8 = new User("civilV", "imDaBest99", "Sid", "Meyers", "16", "sid@yahoo.com",new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()));
 
             List<User> list = new LinkedList<>(new ArrayList<>(List.of(user1, user2, user3, user4, user5, user6, user7, user8)));
 
@@ -106,11 +107,11 @@ public class Startup {
                     email = name + lastname + (age+i) + "@" + randomDomain();
                 }
                 if ((randomAge()+i) % 5==0) {
-                    list.add(new User(randomLogin() + i, randomPassword(), name, lastname, String.valueOf(randomAge()), email.toLowerCase(Locale.ROOT), role1, ((randomAge() + i) % 2 == 0) ? role2 : role3));
+                    list.add(new User(randomLogin() + i, randomPassword(), name, lastname, String.valueOf(randomAge()), email.toLowerCase(Locale.ROOT),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role1, ((randomAge() + i) % 2 == 0) ? role2 : role3));
                 } else if ((randomAge()+i) % 11==0) {
-                    list.add(new User(randomLogin() + i, randomPassword(), name, lastname, String.valueOf(randomAge()), email.toLowerCase(Locale.ROOT), role1 , role2, role3));
+                    list.add(new User(randomLogin() + i, randomPassword(), name, lastname, String.valueOf(randomAge()), email.toLowerCase(Locale.ROOT),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), role1 , role2, role3));
                 } else {
-                    list.add(new User(randomLogin() + i, randomPassword(), name, lastname, String.valueOf(randomAge()), email.toLowerCase(Locale.ROOT), ((randomAge()+i) % 2 == 0) ? role2 : role3));
+                    list.add(new User(randomLogin() + i, randomPassword(), name, lastname, String.valueOf(randomAge()), email.toLowerCase(Locale.ROOT),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()), ((randomAge()+i) % 2 == 0) ? role2 : role3));
                 }
             }
             service.bulkSave(list);
