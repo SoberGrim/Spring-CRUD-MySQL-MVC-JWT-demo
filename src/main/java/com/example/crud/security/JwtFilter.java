@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 
-@Slf4j
 @Configuration
 public class JwtFilter extends OncePerRequestFilter {
     final UserService service;

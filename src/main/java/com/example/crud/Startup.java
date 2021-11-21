@@ -68,11 +68,10 @@ public class Startup {
     }
 
 
-
     @Bean
     public void init() {
-        System.out.println("Startup initializing");
 
+        System.out.println("Startup initializing");
 
         try {
 
