@@ -42,6 +42,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 + " ["+request.getLocalPort() + "<-" + request.getRemoteHost()+':' + request.getRemotePort()+"] "
                 + "User: "+request.getRemoteUser() + ", session: "+request.getRequestedSessionId());
 
+        //todo jwt logout?
+
         String jwt = getCookieFromRequest(request,"JWT");
         if (jwt == null) {
             System.out.println("[" + request.getRemotePort()+"] Token status: none");
