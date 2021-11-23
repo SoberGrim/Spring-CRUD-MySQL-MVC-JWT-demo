@@ -147,7 +147,6 @@
                 $('#removeFilter').addClass('d-none');
                 currPage=1;
                 $('#tabTitle').html('All Users');
-                await update();
             }
         }
 
@@ -158,9 +157,8 @@
             showPage(currPage);
         }
 
-        loadPage("admin");
         removeFilter();
-        update();
+        loadPage("admin");
     </script>
 
     <!-- Верхняя серая строчка -->

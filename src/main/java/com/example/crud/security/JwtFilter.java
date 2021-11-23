@@ -2,20 +2,13 @@ package com.example.crud.security;
 
 
 import com.example.crud.model.User;
-import com.example.crud.repository.UserRepository;
-import com.example.crud.service.RoleService;
 import com.example.crud.service.UserService;
 import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -25,8 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Date;
+
+import static com.example.crud.security.JwtController.setCookie;
+import static com.example.crud.security.JwtUtils.*;
+import static com.example.crud.security.JwtUtils.JwtTokenStatus.*;
 
 @Configuration
 public class JwtFilter extends OncePerRequestFilter {
@@ -48,22 +43,52 @@ public class JwtFilter extends OncePerRequestFilter {
                 + "User: "+request.getRemoteUser() + ", session: "+request.getRequestedSessionId());
 
         String jwt = getCookieFromRequest(request,"JWT");
-       // System.out.println("JWT: " + jwt);
-        Boolean tokenIsValid = validateToken(jwt);
-        System.out.println("Toked is valid? : " +  tokenIsValid);
+        if (jwt == null) {
+            System.out.println("[" + request.getRemotePort()+"] Token status: none");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        if (tokenIsValid) {
+        JwtTokenStatus tokenStatus = checkToken(jwt);
+        System.out.println("[" + request.getRemotePort()+"] Token status: " +  tokenStatus);
+
+        if (tokenStatus==TOKEN_EXPIRED) {
+            String jwr = getCookieFromRequest(request,"JWR");
+            JwtTokenStatus tokenRefreshStatus = checkToken(jwr);
+            if (tokenRefreshStatus==TOKEN_VALID) {
+                System.out.println("[" + request.getRemotePort()+"] JWT refresh token is valid");
+                Long uid = getUserIdFromJwt(jwr);
+                String username = getFieldFromJwt(jwr,"username");
+                User user = service.getById(uid);
+                if (user.getUsername().equals(username)) {
+                    //todo refresh jwt token
+                    String newJwt = generateAccessToken(uid, username);
+                    JwtTokenStatus newTokenStatus = checkToken(newJwt);
+                    jwt = newJwt;
+                    tokenStatus = newTokenStatus;
+
+                    response.addCookie(setCookie("JWT", newJwt,86400));
+                    System.out.println("[" + request.getRemotePort()+"] JWT token refreshed via JWT Refresh token");
+                }
+            } else {
+                System.out.println("[" + request.getRemotePort()+"] JWT expired, JWR is invalid");
+            }
+            //todo refresh token needs refresh?
+        }
+
+
+        if (tokenStatus== TOKEN_VALID) {
             Long uid = getUserIdFromJwt(jwt);
-         //   System.out.println("user id: " + uid);
+            //String username = getUsernameFromJwt(jwt);
+            String username = getFieldFromJwt(jwt,"username");
+            //jwt -> id -> find user in DB. users username from DB == "username" from jwt token?
             User user = service.getById(uid);
-          //  System.out.println("user: "+ user);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-          //  System.out.println(auth);
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-           // System.out.println(auth);
-            //If everything goes fine, set authentication to Security context holder
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
+            if (user.getUsername().equals(username)) {
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                //If everything goes fine, set authentication to Security context holder
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
 
 
@@ -91,59 +116,7 @@ public class JwtFilter extends OncePerRequestFilter {
 //        }
     }
 
-    private String getCookieFromRequest(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies!=null)
-        for (Cookie cookie: cookies) {
-            if (cookie.getName().equals(name)){
-                return cookie.getValue();
-            }
-        }
-        return null;
-    }
 
-    public boolean validateToken(String token) {
-        System.out.println("Token: "+token);
-      //  System.out.println(jwtSecret);
-      //  Jws<Claims> claimsJws = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token);
 
-       try {
-           Claims claims = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
-           System.out.println(claims.toString());
-           return true;
-       } catch (ExpiredJwtException e) {
-           System.out.println("[Filter] JWT token expired");
-       } catch (MalformedJwtException e) {
-           System.out.println("[Filter] JWT token malformed");
-       } catch (SignatureException e) {
-           System.out.println("[Filter] JWT token - bad signature");
-       } catch (IllegalArgumentException e) {
-           System.out.println("[Filter] JWT token - illegal argument");
-       }
-                //.parseClaimsJws(token).getBody().getExpiration().before(new Date());
-     //   System.out.println(nonExpired);
-      //  System.out.println(claimsJws);
-     //   System.out.println(claimsJws.getBody().getExpiration()+" nonexpired?"+claimsJws.getBody().getExpiration().before(new Date()));
-//        try {
-//            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
-//            return !claimsJws.getBody().getExpiration().before(new Date());
-//        } catch (ExpiredJwtException | MalformedJwtException | SignatureException |
-//                IllegalArgumentException e) {
-//            throw new RuntimeException("Invalid token");
-//        }
-        return false;
-    }
-
-    public Long getUserIdFromJwt(String token) {
-        Claims claim = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
-        String id;
-        try {
-            id = claim.getSubject();
-        } catch (Exception e) {
-            System.out.println("[Filter] JWT token has no subject");
-            return 0L;
-        }
-        return Long.parseLong(id);
-    }
 
 }

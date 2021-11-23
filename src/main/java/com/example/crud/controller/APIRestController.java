@@ -14,13 +14,8 @@ import com.example.crud.model.HTTPRequest;
 import com.example.crud.model.UserDTO;
 import com.example.crud.service.RoleService;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.net.http.HttpResponse;
 import java.util.*;
-
-import static com.example.crud.controller.Utils.*;
 
 
 @RestController
@@ -116,30 +111,6 @@ public class APIRestController {
         Long id = idStr.matches("\\d+")?Long.parseLong(idStr):0;
         service.delete(id);
     }
-
-
-    private static Cookie setCookie(String name, String value, int age) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setDomain("localhost");
-        cookie.setPath("/");
-        cookie.setMaxAge(age);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        return cookie;
-    }
-
-    @GetMapping("/jwt")
-    public String giveJWTToken(HttpServletResponse response)
-    {
-        String accessToken = generateAccessToken("1","ADMIN","ADMIN");
-        String refreshToken = generateRefreshToken("1","ADMIN","ADMIN");
-        response.addCookie(setCookie("JWT",accessToken,86400));
-        response.addCookie(setCookie("JWR", refreshToken,86400*10));
-
-        return "<a href=\"https://jwt.io/?value="+ accessToken + "\" target=\"_blank\">" + accessToken + "</a><br><br>\n" +
-                "<a href=\"https://jwt.io/?value="+ refreshToken + "\" target=\"_blank\">"+ refreshToken +"</a>";
-    }
-
 
 
     String cookies="";

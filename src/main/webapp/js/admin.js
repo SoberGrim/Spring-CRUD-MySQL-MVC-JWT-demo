@@ -53,7 +53,6 @@ function enableButton(btnName){
 async function loadPage(link) {
     let response = await fetch('/api/'+link);
     let html = await response.text();
-
     html.includes("<title>Please sign in</title>") ? window.location.replace('/login') : $("#mainBlock").html(html);
 
     if (link==="admin") {

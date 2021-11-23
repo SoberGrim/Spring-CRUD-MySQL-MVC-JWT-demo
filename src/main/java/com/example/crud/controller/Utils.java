@@ -84,32 +84,8 @@ public class Utils {
         return principal;
     }
 
-    public static String generateAccessToken(String id, String username, String password) {
-        Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + 1000 * 60 * 2);
-        return Jwts.builder()
-                .setSubject(id)
-                .claim("username", username)
-                .claim("roles", "ADMIN USER")
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .setIssuer("token-issuer")
-                .setAudience("partner_id")
-                .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8)) // new byte[]{'a','s'}
-                .compact();
-    }
 
-    public static String generateRefreshToken(String id, String username, String password) {
-        Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 24);
 
-        return Jwts.builder()
-                .setSubject(id)
-                .claim("username", username)
-                .setExpiration(expiry)
-                .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8))
-                .compact();
-    }
 
 
 }
