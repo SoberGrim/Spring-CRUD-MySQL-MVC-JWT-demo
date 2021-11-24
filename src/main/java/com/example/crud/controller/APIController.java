@@ -52,7 +52,6 @@ public class APIController {
         return "guestHTML";
     }
 
-
     private User getPrincipal(Principal pr, Authentication authentication) {
         User principal = service.getByUsername(pr.getName());
         if (principal == null) {

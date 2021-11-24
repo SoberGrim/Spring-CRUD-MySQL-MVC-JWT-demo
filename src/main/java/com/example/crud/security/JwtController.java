@@ -54,10 +54,10 @@ public class JwtController {
 
             //set JWT and JWT refresh tokens as cookies
             Long id = user.getId();
-            String accessToken = generateAccessToken(id, username, 86400);
-            RefreshToken refreshToken = generateRefreshToken(id, username, 86400*10);
-            response.addCookie(setCookie("JWT", accessToken,86400));
-            response.addCookie(setCookie("JWR", refreshToken.getToken(),86400*10));
+            String accessToken = generateAccessToken(id, username, 300);
+            RefreshToken refreshToken = generateRefreshToken(id, username, 60*60*24*30);
+            response.addCookie(setCookie("JWT", accessToken,300));
+            response.addCookie(setCookie("JWR", refreshToken.getToken(),60*60*24*30));
 
             //save JWT refresh token in DB (delete previous one if needed)
             refreshTokenRepository.deleteByUserName(username);

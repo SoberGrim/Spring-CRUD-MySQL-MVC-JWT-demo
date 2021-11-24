@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-
 @Component
 public class JwtUtils {
     public static final String jwtSecret = "your-256-bit-secret";
@@ -19,9 +18,6 @@ public class JwtUtils {
         TOKEN_ILLEGAL,
         TOKEN_UNSUPPORTED
     }
-
-
-
 
     public static String generateAccessToken(Long id, String username, int maxAgeInSec) {
         Date now = new Date(System.currentTimeMillis());
@@ -69,7 +65,7 @@ public class JwtUtils {
         try {
             username = claim.get(field).toString();
         } catch (Exception e) {
-            System.out.println("[Filter] JWT token has no " + field);
+            System.out.printf("[Filter] JWT token has no %s\n", field);
             return "";
         }
         return username;
@@ -80,6 +76,8 @@ public class JwtUtils {
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
             System.out.println(claims.toString());
+            long expiresIn = (claims.getExpiration().getTime() - claims.getIssuedAt().getTime()) / 1000;
+            System.out.println("Token expires in: " + expiresIn + " (sec)");
             return JwtTokenStatus.TOKEN_VALID;
         } catch (ExpiredJwtException e) {
             System.out.println("[Filter] JWT token expired");
