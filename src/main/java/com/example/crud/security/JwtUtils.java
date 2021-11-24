@@ -1,14 +1,11 @@
 package com.example.crud.security;
 
-import com.example.crud.security.RefreshToken;
 import io.jsonwebtoken.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
 
 @Component
 public class JwtUtils {
@@ -22,9 +19,11 @@ public class JwtUtils {
     }
 
 
-    public static String generateAccessToken(Long id, String username, int age) {
+
+
+    public static String generateAccessToken(Long id, String username, int maxAgeInSec) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + age * 1000L);
+        Date expiry = new Date(now.getTime() + maxAgeInSec * 1000L);
         return Jwts.builder()
                 .setSubject(id.toString())
                 .claim("username", username)
@@ -37,9 +36,9 @@ public class JwtUtils {
                 .compact();
     }
 
-    public static RefreshToken generateRefreshToken(Long id, String username, int age) {
+    public static RefreshToken generateRefreshToken(Long id, String username, int maxAgeInSec) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + age * 1000L);
+        Date expiry = new Date(now.getTime() + maxAgeInSec * 1000L);
 
         String token = Jwts.builder()
                 .setSubject(id.toString())
@@ -62,7 +61,6 @@ public class JwtUtils {
         return Long.parseLong(id);
     }
 
-
     public static String getFieldFromJwt(String token, String field) {
         Claims claim = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
         String username;
@@ -77,7 +75,6 @@ public class JwtUtils {
 
     public static JwtTokenStatus checkToken(String token) {
         System.out.println("Checking token: " + token);
-
         try {
             Claims claims = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
             System.out.println(claims.toString());

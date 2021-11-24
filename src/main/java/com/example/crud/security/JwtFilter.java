@@ -16,9 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.example.crud.security.JwtController.setCookie;
 import static com.example.crud.security.JwtUtils.*;
-import static com.example.crud.security.ControllerUtils.*;
+import static com.example.crud.security.CookieUtils.*;
 import static com.example.crud.security.JwtUtils.JwtTokenStatus.*;
 
 @Configuration
@@ -31,6 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
         this.service = service;
  //       this.jwtSecret = env.getProperty("jwt.secret");
     }
+
 
 
     @Override
@@ -117,6 +117,23 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
 
+    public boolean authorizeUser(String jwt, HttpServletRequest request) {
+        JwtTokenStatus tokenStatus = checkToken(jwt);
 
+        if (tokenStatus== TOKEN_VALID) {
+            Long uid = getUserIdFromJwt(jwt);
+            String username = getFieldFromJwt(jwt,"username");
+            //jwt -> id -> find user in DB. users username from DB == "username" from jwt token?
+            User user = service.getById(uid);
+            if (user.getUsername().equals(username)) {
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                //If everything goes fine, set authentication to Security context holder
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

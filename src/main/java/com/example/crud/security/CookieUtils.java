@@ -1,18 +1,11 @@
 package com.example.crud.security;
 
-import com.example.crud.model.User;
-import com.example.crud.model.UserRole;
-import com.example.crud.service.UserService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.ArrayList;
 
-public class ControllerUtils {
+
+public class CookieUtils {
+
     public static String getCookieFromRequest(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies!=null)
@@ -24,5 +17,14 @@ public class ControllerUtils {
         return null;
     }
 
+    static Cookie setCookie(String name, String value, int age) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setDomain("localhost");
+        cookie.setPath("/");
+        cookie.setMaxAge(age);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
 
 }

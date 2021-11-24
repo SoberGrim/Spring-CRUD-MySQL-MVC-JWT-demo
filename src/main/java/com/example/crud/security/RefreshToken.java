@@ -1,12 +1,10 @@
 package com.example.crud.security;
 
-import com.example.crud.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.Date;
 
 @Getter
@@ -14,9 +12,6 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity(name = "refresh_token")
 public class RefreshToken {
-//  @Id
-//  @GeneratedValue(strategy = GenerationType.IDENTITY)
-//  private long id;
 
   @Id
   @Column(nullable = false, unique = true, length = 60)
