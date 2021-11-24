@@ -23,12 +23,10 @@ import static com.example.crud.security.JwtUtils.JwtTokenStatus.*;
 @Configuration
 public class JwtFilter extends OncePerRequestFilter {
     final UserService service;
-   // final String jwtSecret;
 
     @Autowired
     public JwtFilter(UserService service) {
         this.service = service;
- //       this.jwtSecret = env.getProperty("jwt.secret");
     }
 
 
@@ -36,11 +34,9 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        System.out.println("[Filter] " + request.getMethod() + ' ' + request.getRequestURL()
-                + " ["+request.getLocalPort() + "<-" + request.getRemoteHost()+':' + request.getRemotePort()+"] "
-                + "User: "+request.getRemoteUser() + ", session: "+request.getRequestedSessionId());
-
-        //todo jwt logout?
+        int remotePort = request.getRemotePort();
+        System.out.printf("[Filter] %s %s [%s<-%s:%s] User %s, session: %s\n",
+                request.getMethod(), request.getRequestURL(), request.getLocalPort(), request.getRemoteHost(), request.getRemotePort(), request.getRemoteUser(),request.getRequestedSessionId());
 
         String jwt = getCookieFromRequest(request,"JWT");
         if (jwt == null) {
@@ -50,28 +46,27 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         JwtTokenStatus tokenStatus = checkToken(jwt);
-        System.out.println("[" + request.getRemotePort()+"] Token status: " +  tokenStatus);
+        System.out.printf("[%s] Token status: %s", remotePort, tokenStatus);
 
         if (tokenStatus==TOKEN_EXPIRED) {
             String jwr = getCookieFromRequest(request,"JWR");
             JwtTokenStatus tokenRefreshStatus = checkToken(jwr);
             if (tokenRefreshStatus==TOKEN_VALID) {
-                System.out.println("[" + request.getRemotePort()+"] JWT refresh token is valid");
+                System.out.printf("[%s] JWT refresh token is valid", remotePort);
                 Long uid = getUserIdFromJwt(jwr);
                 String username = getFieldFromJwt(jwr,"username");
                 User user = service.getById(uid);
                 if (user.getUsername().equals(username)) {
-                    //todo refresh jwt token
                     String newJwt = generateAccessToken(uid, username, 86400);
                     JwtTokenStatus newTokenStatus = checkToken(newJwt);
                     jwt = newJwt;
                     tokenStatus = newTokenStatus;
 
                     response.addCookie(setCookie("JWT", newJwt,86400));
-                    System.out.println("[" + request.getRemotePort()+"] JWT token refreshed via JWT Refresh token");
+                    System.out.printf("[%s] JWT token refreshed via JWT Refresh token", remotePort);
                 }
             } else {
-                System.out.println("[" + request.getRemotePort()+"] JWT expired, JWR is invalid");
+                System.out.printf("[%s] JWT expired, JWR is invalid", remotePort);
             }
             //todo refresh token needs refresh?
         }
@@ -79,8 +74,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (tokenStatus== TOKEN_VALID) {
             Long uid = getUserIdFromJwt(jwt);
-            //String username = getUsernameFromJwt(jwt);
             String username = getFieldFromJwt(jwt,"username");
+
             //jwt -> id -> find user in DB. users username from DB == "username" from jwt token?
             User user = service.getById(uid);
             if (user.getUsername().equals(username)) {
@@ -91,29 +86,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-
         filterChain.doFilter(request, response);
-       // if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-//        if (StringUtils.hasText(jwt)) {
-//            //Extract user id from jwt token
-//            Long userId = 1L;//tokenProvider.getUserIdFromJwt(jwt);
-//
-//           // SecurityUser user = (SecurityUser) userDetailsService.loadUserById(userId);
-//            User user = service.getById(userId);
-//            //System.out.println("jwt filter user:"+user);
-//
-//
-//            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-//            auth.setDetails(new WebAuthenticationDetailsSource()
-//                    .buildDetails(request));
-//            //If everything goes fine, set authentication to Security context holder
-//            SecurityContextHolder.getContext().setAuthentication(auth);
-//
-//        } else {
-//
-//
-//            filterChain.doFilter(request, response);
-//        }
     }
 
 

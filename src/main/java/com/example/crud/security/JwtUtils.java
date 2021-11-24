@@ -9,6 +9,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
+    public static final String jwtSecret = "your-256-bit-secret";
+
     enum JwtTokenStatus {
         TOKEN_VALID,
         TOKEN_EXPIRED,
@@ -32,7 +34,7 @@ public class JwtUtils {
                 .setExpiration(expiry)
                 .setIssuer("token-issuer")
                 .setAudience("partner_id")
-                .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8)) // new byte[]{'a','s'}
+                .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes(StandardCharsets.UTF_8)) // new byte[]{'a','s'}
                 .compact();
     }
 
@@ -44,13 +46,13 @@ public class JwtUtils {
                 .setSubject(id.toString())
                 .claim("username", username)
                 .setExpiration(expiry)
-                .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8))
+                .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes(StandardCharsets.UTF_8))
                 .compact();
         return new RefreshToken(token, id.toString(), username, expiry);
     }
 
     public static Long getUserIdFromJwt(String token) {
-        Claims claim = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
+        Claims claim = Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
         String id;
         try {
             id = claim.getSubject();
@@ -62,7 +64,7 @@ public class JwtUtils {
     }
 
     public static String getFieldFromJwt(String token, String field) {
-        Claims claim = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
+        Claims claim = Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
         String username;
         try {
             username = claim.get(field).toString();
@@ -76,7 +78,7 @@ public class JwtUtils {
     public static JwtTokenStatus checkToken(String token) {
         System.out.println("Checking token: " + token);
         try {
-            Claims claims = Jwts.parser().setSigningKey("your-256-bit-secret".getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
             System.out.println(claims.toString());
             return JwtTokenStatus.TOKEN_VALID;
         } catch (ExpiredJwtException e) {
