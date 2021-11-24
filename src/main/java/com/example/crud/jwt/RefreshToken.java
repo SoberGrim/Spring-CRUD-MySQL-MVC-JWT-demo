@@ -1,4 +1,4 @@
-package com.example.crud.security;
+package com.example.crud.jwt;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

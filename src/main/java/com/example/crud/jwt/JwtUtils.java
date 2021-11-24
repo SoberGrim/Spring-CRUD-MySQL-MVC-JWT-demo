@@ -1,4 +1,4 @@
-package com.example.crud.security;
+package com.example.crud.jwt;
 
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;

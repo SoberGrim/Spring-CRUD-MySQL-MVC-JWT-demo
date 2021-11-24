@@ -1,4 +1,4 @@
-package com.example.crud.security;
+package com.example.crud.jwt;
 
 
 import com.example.crud.model.User;
@@ -16,9 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.example.crud.security.JwtUtils.*;
-import static com.example.crud.security.CookieUtils.*;
-import static com.example.crud.security.JwtUtils.JwtTokenStatus.*;
+import static com.example.crud.jwt.JwtUtils.*;
+import static com.example.crud.jwt.CookieUtils.*;
+import static com.example.crud.jwt.JwtUtils.JwtTokenStatus.*;
 
 @Configuration
 public class JwtFilter extends OncePerRequestFilter {

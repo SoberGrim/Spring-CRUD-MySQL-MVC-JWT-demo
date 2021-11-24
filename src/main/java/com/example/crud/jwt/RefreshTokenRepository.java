@@ -1,4 +1,4 @@
-package com.example.crud.security;
+package com.example.crud.jwt;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

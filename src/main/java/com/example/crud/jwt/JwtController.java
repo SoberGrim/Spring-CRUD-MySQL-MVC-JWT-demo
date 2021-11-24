@@ -1,4 +1,4 @@
-package com.example.crud.security;
+package com.example.crud.jwt;
 
 import com.example.crud.model.User;
 import com.example.crud.service.UserService;
@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.security.Principal;
 
-import static com.example.crud.security.JwtUtils.*;
-import static com.example.crud.security.CookieUtils.*;
+import static com.example.crud.jwt.JwtUtils.*;
+import static com.example.crud.jwt.CookieUtils.*;
 
 
 @Controller

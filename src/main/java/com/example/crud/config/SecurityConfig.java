@@ -1,6 +1,6 @@
 package com.example.crud.config;
 
-import com.example.crud.security.JwtFilter;
+import com.example.crud.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
