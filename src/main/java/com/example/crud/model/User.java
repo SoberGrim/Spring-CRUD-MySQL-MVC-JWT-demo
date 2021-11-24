@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -182,6 +183,7 @@ public class User implements UserDetails {
         return password;
     }
 
+
     public void setPassword(String password) {
         if (password.startsWith("$2a$") && password.length() == 60) {
             System.out.println("encrypted password set: " + password);
@@ -198,6 +200,10 @@ public class User implements UserDetails {
                 this.password = password;
             }
         }
+    }
+
+    public boolean isPasswordCorrect(String password){
+        return passwordEncoder.matches(password, this.password);
     }
 
     public String getFirstname() {

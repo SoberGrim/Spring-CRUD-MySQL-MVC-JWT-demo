@@ -18,6 +18,8 @@ import com.example.crud.model.UserDTO;
 import com.example.crud.model.UserRole;
 import com.example.crud.service.UserService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
@@ -83,8 +85,6 @@ public class Utils {
         }
         return principal;
     }
-
-
 
 
 

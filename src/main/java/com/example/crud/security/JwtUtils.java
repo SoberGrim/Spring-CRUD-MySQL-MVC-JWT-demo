@@ -1,5 +1,6 @@
 package com.example.crud.security;
 
+import com.example.crud.security.RefreshToken;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,13 +17,14 @@ public class JwtUtils {
         TOKEN_EXPIRED,
         TOKEN_MALFORMED,
         TOKEN_BAD_SIGNATURE,
-        TOKEN_ILLEGAL
+        TOKEN_ILLEGAL,
+        TOKEN_UNSUPPORTED
     }
 
 
-    public static String generateAccessToken(Long id, String username) {
+    public static String generateAccessToken(Long id, String username, int age) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + 1000 * 60 * 2);
+        Date expiry = new Date(now.getTime() + age * 1000L);
         return Jwts.builder()
                 .setSubject(id.toString())
                 .claim("username", username)
@@ -35,28 +37,17 @@ public class JwtUtils {
                 .compact();
     }
 
-    public static String getCookieFromRequest(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies!=null)
-            for (Cookie cookie: cookies) {
-                if (cookie.getName().equals(name)){
-                    return cookie.getValue();
-                }
-            }
-        return null;
-    }
-
-    public static RefreshToken generateRefreshToken(String id, String username, String password) {
+    public static RefreshToken generateRefreshToken(Long id, String username, int age) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiry = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 24);
+        Date expiry = new Date(now.getTime() + age * 1000L);
 
         String token = Jwts.builder()
-                .setSubject(id)
+                .setSubject(id.toString())
                 .claim("username", username)
                 .setExpiration(expiry)
                 .signWith(SignatureAlgorithm.HS256, "your-256-bit-secret".getBytes(StandardCharsets.UTF_8))
                 .compact();
-        return new RefreshToken(token, id, username, expiry);
+        return new RefreshToken(token, id.toString(), username, expiry);
     }
 
     public static Long getUserIdFromJwt(String token) {
@@ -103,6 +94,9 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             System.out.println("[Filter] JWT token - illegal argument");
             return JwtTokenStatus.TOKEN_ILLEGAL;
+        } catch (UnsupportedJwtException e) {
+            System.out.println("[Filter] JWT token unsupported");
+            return JwtTokenStatus.TOKEN_UNSUPPORTED;
         }
     }
 
