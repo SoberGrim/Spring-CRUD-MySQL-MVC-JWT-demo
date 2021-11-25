@@ -56,7 +56,8 @@ public class SecurityConfig {
                     .antMatchers("/login").permitAll()
                     .antMatchers("/admin/","/admin").access("hasRole('ROLE_ADMIN')")
                     .antMatchers("/user/","/user").access("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
-                    .antMatchers("/guest/","/guest").access("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')");
+                    .antMatchers("/guest/","/guest").access("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')")
+                    .antMatchers("/api/monitor").hasIpAddress("0:0:0:0:0:0:0:1");
 
             http
                     .formLogin().loginPage("/login").successHandler((request, response, auth) ->
