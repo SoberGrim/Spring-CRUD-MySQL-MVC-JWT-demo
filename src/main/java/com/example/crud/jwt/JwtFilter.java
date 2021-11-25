@@ -37,14 +37,14 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         //skip auth filter if user is authorized
-        if ( SecurityContextHolder.getContext().getAuthentication().isAuthenticated() ) {
+        if ((SecurityContextHolder.getContext().getAuthentication() != null) && (SecurityContextHolder.getContext().getAuthentication().isAuthenticated())) {
             filterChain.doFilter(request, response);
             return;
         }
 
         int remotePort = request.getRemotePort();
         //skip auth if user has no JWT token
-        String jwt = getCookieFromRequest(request,"JWT");
+        String jwt = getCookieFromRequest(request, "JWT");
         if (jwt == null) {
             System.out.printf("[%s] Token status: none\n", remotePort);
             filterChain.doFilter(request, response);
@@ -52,22 +52,21 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         System.out.printf("[Filter] %s %s [%s<-%s:%s] User %s, session: %s\n",
-                request.getMethod(), request.getRequestURL(), request.getLocalPort(), request.getRemoteHost(), request.getRemotePort(), request.getRemoteUser(),request.getRequestedSessionId());
-
+                request.getMethod(), request.getRequestURL(), request.getLocalPort(), request.getRemoteHost(), request.getRemotePort(), request.getRemoteUser(), request.getRequestedSessionId());
 
 
         JwtTokenStatus tokenStatus = checkToken(jwt);
         System.out.printf("[%s] Token status: %s\n", remotePort, tokenStatus);
 
-        if (tokenStatus==TOKEN_EXPIRED) {
-            String jwr = getCookieFromRequest(request,"JWR");
+        if (tokenStatus == TOKEN_EXPIRED) {
+            String jwr = getCookieFromRequest(request, "JWR");
             JwtTokenStatus tokenRefreshStatus = checkToken(jwr);
-            if (tokenRefreshStatus==TOKEN_VALID) {
+            if (tokenRefreshStatus == TOKEN_VALID) {
                 System.out.printf("[%s] JWT refresh token is valid\n", remotePort);
                 Long uid = getUserIdFromJwt(jwr);
 
                 if (refreshTokenRepository.findByToken(jwr).isPresent()) {
-                    String username = getFieldFromJwt(jwr,"username");
+                    String username = getFieldFromJwt(jwr, "username");
                     User user = service.getById(uid);
                     if (user.getUsername().equals(username)) {
                         String newJwt = generateAccessToken(uid, username, 86400);
@@ -75,7 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         jwt = newJwt;
                         tokenStatus = newTokenStatus;
 
-                        response.addCookie(setCookie("JWT", newJwt,86400));
+                        response.addCookie(setCookie("JWT", newJwt, 86400));
                         System.out.printf("[%s] JWT token refreshed via JWT Refresh token\n", remotePort);
                     }
 
@@ -87,9 +86,9 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
 
-        if (tokenStatus== TOKEN_VALID) {
+        if (tokenStatus == TOKEN_VALID) {
             Long uid = getUserIdFromJwt(jwt);
-            String username = getFieldFromJwt(jwt,"username");
+            String username = getFieldFromJwt(jwt, "username");
 
             //jwt -> id -> find user in DB. users username from DB == "username" from jwt token?
             User user = service.getById(uid);

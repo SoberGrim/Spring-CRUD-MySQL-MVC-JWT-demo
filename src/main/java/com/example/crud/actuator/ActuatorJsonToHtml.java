@@ -7,7 +7,12 @@ import org.json.JSONObject;
 public class ActuatorJsonToHtml {
 
     public static String getHtmlData(String strJsonData) {
-        return jsonToHtml(new JSONObject(strJsonData));
+        try {
+            JSONObject obj = new JSONObject(strJsonData);
+            return jsonToHtml(obj);
+        } catch (JSONException e) {
+            return strJsonData;
+        }
     }
 
     // static int inputLevel = 0;

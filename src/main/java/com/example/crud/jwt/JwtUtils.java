@@ -76,8 +76,8 @@ public class JwtUtils {
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
             System.out.println(claims.toString());
-            long expiresIn = (claims.getExpiration().getTime() - claims.getIssuedAt().getTime()) / 1000;
-            System.out.println("Token expires in: " + expiresIn + " (sec)");
+            long expiresIn = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
+            System.out.printf("[checkToken] Token expires in %ss\n", expiresIn);
             return JwtTokenStatus.TOKEN_VALID;
         } catch (ExpiredJwtException e) {
             System.out.println("[Filter] JWT token expired");
